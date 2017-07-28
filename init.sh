@@ -5,6 +5,9 @@ set -e
 MYDIR="$(dirname "$(readlink -f "$0")")"
 LOGFILE="$MYDIR/lastoutput"
 
+NODE=~/bin/node
+NPM=~/bin/npm
+
 cd "$MYDIR"
 rm -f "$LOGFILE"
 
@@ -16,10 +19,10 @@ if git >/dev/null 2>&1; then
     ]; then
         git pull --rebase --stat origin master && \
         {
-            cd "$MYDIR/tc-server" && npm install
+            cd "$MYDIR/tc-server" && "$NPM" install
         } || true;
     fi
 fi >>"$LOGFILE" 2>&1
 
 # start the server
-( cd "$MYDIR/tc-server" && nohup setsid ~/bin/node app.js & )
+( cd "$MYDIR/tc-server" && nohup setsid "$NODE" app.js & )
