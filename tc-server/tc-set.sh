@@ -1,6 +1,8 @@
 #!/bin/sh
 
-tc qdisc del dev eth0 root 2>/dev/null || true
+iface=$(basename $(ls -d /sys/class/net/e*))
+
+tc qdisc del dev $iface root 2>/dev/null || true
 tc qdisc del dev wlan0 root 2>/dev/null || true
 
 if [ "$1" = "wifi" ]; then
@@ -45,13 +47,13 @@ esac
 
 
 
-tc qdisc add dev eth0 root handle 1: prio
-tc qdisc add dev eth0 parent 1:1 handle 10: prio
-tc qdisc add dev eth0 parent 1:2 handle 2: netem delay $UPSTREAM_DELAY
-tc qdisc add dev eth0 parent 2:1 handle 20: htb default 1
-tc class add dev eth0 parent 20:1 classid 20:1 htb rate $UPSTREAM_BANDWIDTH burst 15k
-tc filter add dev eth0 protocol ip parent 1: prio 1 u32 match ip dport 443 0xffff flowid 1:2
-tc filter add dev eth0 protocol ip parent 1: prio 1 u32 match ip dport 80 0xffff flowid 1:2
+tc qdisc add dev $iface root handle 1: prio
+tc qdisc add dev $iface parent 1:1 handle 10: prio
+tc qdisc add dev $iface parent 1:2 handle 2: netem delay $UPSTREAM_DELAY
+tc qdisc add dev $iface parent 2:1 handle 20: htb default 1
+tc class add dev $iface parent 20:1 classid 20:1 htb rate $UPSTREAM_BANDWIDTH burst 15k
+tc filter add dev $iface protocol ip parent 1: prio 1 u32 match ip dport 443 0xffff flowid 1:2
+tc filter add dev $iface protocol ip parent 1: prio 1 u32 match ip dport 80 0xffff flowid 1:2
 
 
 
